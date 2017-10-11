@@ -5,24 +5,10 @@
 /* File:      histogram.c
  * Purpose:   Build a histogram from some random data
  *
- * Compile:   gcc -g -Wall -o histogram histogram.c
+ * Compile:   mpicc -g -Wall -o histogram histogram.c
  * Run:       ./histogram <bin_count> <min_meas> <max_meas> <data_count>
  *
- * Input:     None
- * Output:    A histogram with X's showing the number of measurements
- *            in each bin
- *
- * Notes:
- * 1.  Actual measurements y are in the range min_meas <= y < max_meas
- * 2.  bin_counts[i] stores the number of measurements x in the range
- * 3.  bin_maxes[i-1] <= x < bin_maxes[i] (bin_maxes[-1] = min_meas)
- * 4.  DEBUG compile flag gives verbose output
- * 5.  The program will terminate if either the number of command line
- *     arguments is incorrect or if the search for a bin for a
- *     measurement fails.
- *
- * IPP:  Section 2.7.1 (pp. 66 and ff.)
- */
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
@@ -138,11 +124,7 @@ int main(int argc, char* argv[]) {
 }  /* main */
 
 
-/*---------------------------------------------------------------------
- * Function:  Usage
- * Purpose:   Print a message showing how to run program and quit
- * In arg:    prog_name:  the name of the program from the command line
- */
+
 void Usage(char prog_name[] /* in */) {
     fprintf(stderr, "usage: %s ", prog_name);
     fprintf(stderr, "<bin_count> <min_meas> <max_meas> <data_count>\n");
@@ -150,15 +132,7 @@ void Usage(char prog_name[] /* in */) {
 }  /* Usage */
 
 
-/*---------------------------------------------------------------------
- * Function:  Get_args
- * Purpose:   Get the command line arguments
- * In arg:    argv:  strings from command line
- * Out args:  bin_count_p:   number of bins
- *            min_meas_p:    minimum measurement
- *            max_meas_p:    maximum measurement
- *            data_count_p:  number of measurements
- */
+
 void Get_args(
         char*    argv[]        /* in  */,
         int*     bin_count_p   /* out */,
@@ -195,14 +169,7 @@ void Get_args(
 }  /* Get_args */
 
 
-/*---------------------------------------------------------------------
- * Function:  Gen_data
- * Purpose:   Generate random floats in the range min_meas <= x < max_meas
- * In args:   min_meas:    the minimum possible value for the data
- *            max_meas:    the maximum possible value for the data
- *            data_count:  the number of measurements
- * Out arg:   data:        the actual measurements
- */
+
 void Gen_data(
         float   min_meas    /* in  */,
         float   max_meas    /* in  */,
@@ -232,16 +199,7 @@ void Gen_data(
 }  /* Gen_data */
 
 
-/*---------------------------------------------------------------------
- * Function:  Gen_bins
- * Purpose:   Compute max value for each bin, and store 0 as the
- *            number of values in each bin
- * In args:   min_meas:   the minimum possible measurement
- *            max_meas:   the maximum possible measurement
- *            bin_count:  the number of bins
- * Out args:  bin_maxes:  the maximum possible value for each bin
- *            bin_counts: the number of data values in each bin
- */
+
 void Gen_bins(
         float min_meas      /* in  */,
         float max_meas      /* in  */,
@@ -267,23 +225,7 @@ void Gen_bins(
 }  /* Gen_bins */
 
 
-/*---------------------------------------------------------------------
- * Function:  Which_bin
- * Purpose:   Use binary search to determine which bin a measurement
- *            belongs to
- * In args:   data:       the current measurement
- *            bin_maxes:  list of max bin values
- *            bin_count:  number of bins
- *            min_meas:   the minimum possible measurement
- * Return:    the number of the bin to which data belongs
- * Notes:
- * 1.  The bin to which data belongs satisfies
- *
- *            bin_maxes[i-1] <= data < bin_maxes[i]
- *
- *     where, bin_maxes[-1] = min_meas
- * 2.  If the search fails, the function prints a message and exits
- */
+
 int Which_bin(
         float   data          /* in */,
         float   bin_maxes[]   /* in */,
@@ -312,15 +254,6 @@ int Which_bin(
 }  /* Which_bin */
 
 
-/*---------------------------------------------------------------------
- * Function:  Print_histo
- * Purpose:   Print a histogram.  The number of elements in each
- *            bin is shown by an array of X's.
- * In args:   bin_maxes:   the max value for each bin
- *            bin_counts:  the number of elements in each bin
- *            bin_count:   the number of bins
- *            min_meas:    the minimum possible measurment
- */
 void Print_histo(
         float  bin_maxes[]   /* in */,
         int    bin_counts[]  /* in */,
@@ -339,129 +272,3 @@ void Print_histo(
     }
 }  /* Print_histo */
 
-//
-// Created by Fernando Montes on 10/2/17.
-//
-
-#include <stdio.h>
-
-/* We'll be using MPI routines, definitions, etc. */
-#include <mpi.h>
-
-/* Calculate local integral  */
-double Trap(double left_endpt, double right_endpt, int trap_count,
-            double base_len);
-
-/* Function we're integrating */
-double f(double x);
-
-void Get_input(int my_rank, int comm_sz, double* a_p, double* b_p,
-               int* n_p);
-
-int main(void) {
-    int my_rank, comm_sz, n, local_n;
-    double a, b, h, local_a, local_b;
-    double local_int, total_int;
-
-
-    /* Let the system do what it needs to start up MPI */
-    MPI_Init(NULL, NULL);
-
-    /* Get my process rank */
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
-    /* Find out how many processes are being used */
-    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-
-    Get_input(my_rank, comm_sz, &a, &b, &n);
-
-
-    h = (b-a)/n;          /* h is the same for all processes */
-    local_n = n/comm_sz;  /* So is the number of trapezoids  */
-
-    /* Length of each process' interval of
-     * integration = local_n*h.  So my interval
-     * starts at: */
-    local_a = a + my_rank*local_n*h;
-    local_b = local_a + local_n*h;
-    local_int = Trap(local_a, local_b, local_n, h);
-
-    /* Add up the integrals calculated by each process */
-    MPI_Reduce(&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    /* Print the result */
-    if (my_rank == 0) {
-        printf("With n = %d trapezoids, our estimate\n", n);
-        printf("of the integral from %f to %f = %.15e\n",
-               a, b, total_int);
-    }
-
-    /* Shut down MPI */
-    MPI_Finalize();
-
-    return 0;
-} /*  main  */
-
-
-/*------------------------------------------------------------------
- * Function:     Trap
- * Purpose:      Serial function for estimating a definite integral
- *               using the trapezoidal rule
- * Input args:   left_endpt
- *               right_endpt
- *               trap_count
- *               base_len
- * Return val:   Trapezoidal rule estimate of integral from
- *               left_endpt to right_endpt using trap_count
- *               trapezoids
- */
-double Trap(
-        double left_endpt  /* in */,
-        double right_endpt /* in */,
-        int    trap_count  /* in */,
-        double base_len    /* in */) {
-    double estimate, x;
-    int i;
-
-    estimate = (f(left_endpt) + f(right_endpt))/2.0;
-    for (i = 1; i <= trap_count-1; i++) {
-        x = left_endpt + i*base_len;
-        estimate += f(x);
-    }
-    estimate = estimate*base_len;
-
-    return estimate;
-} /*  Trap  */
-
-
-/*------------------------------------------------------------------
- * Function:    f
- * Purpose:     Compute value of function to be integrated
- * Input args:  x
- */
-double f(double x) {
-    return x*x;
-} /* f */
-
-
-void Get_input(int my_rank, int comm_sz, double* a_p, double* b_p,
-               int* n_p) {
-    int dest;
-
-    if (my_rank == 0) {
-        printf("Enter a, b, and n \nExample 0 3 4000\n");
-        scanf("%lf %lf %d", a_p, b_p, n_p);
-        for (dest = 1; dest < comm_sz; dest++) {
-            MPI_Send(a_p, 1, MPI_DOUBLE, dest, 0, MPI_COMM_WORLD);
-            MPI_Send(b_p, 1, MPI_DOUBLE, dest, 0, MPI_COMM_WORLD);
-            MPI_Send(n_p, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
-        }
-    } else { /* my_rank != 0 */
-        MPI_Recv(a_p, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD,
-                 MPI_STATUS_IGNORE);
-        MPI_Recv(b_p, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD,
-                 MPI_STATUS_IGNORE);
-        MPI_Recv(n_p, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,
-                 MPI_STATUS_IGNORE);
-    }
-}
