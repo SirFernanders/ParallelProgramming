@@ -6,16 +6,12 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
         Assigment0/mpi_vect_mult/mpi_mat_vect_mult.c
         Assigment0/mpi_vect_mult/mpi_vect_mult.c
-        Assigment0/mpi_vect_mult/mult_orignial.c
-        Assigment1/histo.c
-        Assigment1/histogram.c
-        Assigment1/trap.c
         ipp-source-use/ch2/histogram.c
         ipp-source-use/ch3/bubble.c
         ipp-source-use/ch3/mat_vect_mult.c
         ipp-source-use/ch3/mpi_hello.c
         ipp-source-use/ch3/mpi_many_msgs.c
-        ipp-source-use/ch3/mpi_mat_vect_mult.c
+        Assigment0/mpi_vect_mult/mpi_mat_vect_mult.c
         ipp-source-use/ch3/mpi_mat_vect_time.c
         ipp-source-use/ch3/mpi_odd_even.c
         ipp-source-use/ch3/mpi_output.c
@@ -98,6 +94,6 @@ set(SOURCE_FILES
         ipp-source-use/ch6/timer.h
         ipp-source-use/ch6/tsp_iter1.c
         ipp-source-use/ch6/tsp_iter2.c
-        ipp-source-use/ch6/tsp_rec.c Assigment1/trap.c Assigment1/histo.c Assignment2/3.c Assignment2/3_1.c Assignment2/3_2.c)
+        ipp-source-use/ch6/tsp_rec.c Assigment1/trap.c Assigment1/histo.c Assignment2/3.c Assignment2/3_1.c Assignment2/3_2.c Assignment2/contig.c)
 
 add_executable(ParallelProgramming ${SOURCE_FILES})
