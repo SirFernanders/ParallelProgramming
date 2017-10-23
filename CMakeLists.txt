@@ -94,6 +94,6 @@ set(SOURCE_FILES
         ipp-source-use/ch6/timer.h
         ipp-source-use/ch6/tsp_iter1.c
         ipp-source-use/ch6/tsp_iter2.c
-        ipp-source-use/ch6/tsp_rec.c Assigment1/trap.c Assigment1/histo.c Assignment2/3.c Assignment2/3_1.c Assignment2/3_2.c Assignment2/contig.c)
+        ipp-source-use/ch6/tsp_rec.c Assigment1/trap.c Assigment1/histo.c Assigment2/3.c Assigment2/3_1.c Assigment2/3_2.c Assigment2/contig.c Assigment3/Matrix_Mult.c)
 
 add_executable(ParallelProgramming ${SOURCE_FILES})
