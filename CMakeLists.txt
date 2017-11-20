@@ -97,3 +97,5 @@ set(SOURCE_FILES
         ipp-source-use/ch6/tsp_rec.c Assigment1/trap.c Assigment1/histo.c Assigment2/3.c Assigment2/3_1.c Assigment2/3_2.c Assigment2/contig.c Assigment3/Matrix_Mult.c)
 
 add_executable(ParallelProgramming ${SOURCE_FILES})
+add_executable(5_2 Assigment5/5_2.c)
+set_target_properties(5_2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Assigment5/")
