@@ -87,12 +87,10 @@ void Read_vector(char prompt[], double local_vec[], int n, int local_n, int my_r
         printf("Enter the vector %s\n", prompt);
         for (i = 0; i < n; i++)
             scanf("%lf", &vec[i]);
-        MPI_Scatter(vec, local_n, MPI_DOUBLE,
-                    local_vec, local_n, MPI_DOUBLE, 0, comm);
+        MPI_Scatter(vec, local_n, MPI_DOUBLE, local_vec, local_n, MPI_DOUBLE, 0, comm);
         free(vec);
     } else {
-        MPI_Scatter(vec, local_n, MPI_DOUBLE,
-                    local_vec, local_n, MPI_DOUBLE, 0, comm);
+        MPI_Scatter(vec, local_n, MPI_DOUBLE, local_vec, local_n, MPI_DOUBLE, 0, comm);
     }
 }  /* Read_vector */
 
